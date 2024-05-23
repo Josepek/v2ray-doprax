@@ -1,32 +1,41 @@
 #!/bin/bash
 
-CONFIG_FILE="/etc/v2ray/config.json"
-
-add_user() {
-    UUID=$(uuidgen)
-    echo "Adding user with UUID: $UUID"
-    jq --arg UUID "$UUID" '.inbounds[0].settings.clients += [{"id": $UUID, "alterId": 64}]' $CONFIG_FILE > tmp.$$.json && mv tmp.$$.json $CONFIG_FILE
-    echo "User added. UUID: $UUID"
+# Add a new user account
+add_account() {
+  local id=$1
+  local alterId=$2
+  echo "{\"id\":\"$id\",\"alterId\":$alterId}," >> accounts.txt
 }
 
-remove_user() {
-    UUID=$1
-    echo "Removing user with UUID: $UUID"
-    jq 'del(.inbounds[0].settings.clients[] | select(.id=="'$UUID'"))' $CONFIG_FILE > tmp.$$.json && mv tmp.$$.json $CONFIG_FILE
-    echo "User removed. UUID: $UUID"
+# Remove an existing user account
+remove_account() {
+  local id=$1
+  sed -i "/\"id\":\"$id\"/d" accounts.txt
 }
 
-case "$1" in
+# List all user accounts
+list_accounts() {
+  cat accounts.txt
+}
+
+# Main function
+main() {
+  case "$1" in
     add)
-        add_user
-        ;;
+      add_account "$2" "$3"
+      ;;
     remove)
-        remove_user $2
-        ;;
+      remove_account "$2"
+      ;;
+    list)
+      list_accounts
+      ;;
     *)
-        echo "Usage: $0 {add|remove UUID}"
-        exit 1
-esac
+      echo "Usage: $0 {add|remove|list} [ID] [alterId]"
+      exit 1
+      ;;
+  esac
+}
 
-# Restart V2Ray to apply changes
-systemctl restart v2ray
+# Call main function with command line arguments
+main "$@"

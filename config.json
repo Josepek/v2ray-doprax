@@ -4,12 +4,7 @@
       "port": 8080,
       "protocol": "vmess",
       "settings": {
-        "clients": [
-          {
-            "id": "9C279DB4-E052-4145-AFF4-CC7D20818F30",
-            "alterId": 64
-          }
-        ]
+        "clients": []
       },
       "streamSettings": {
         "network": "ws",

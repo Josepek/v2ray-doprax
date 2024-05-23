@@ -1,10 +1,17 @@
+# Use an official V2Ray image as base
 FROM v2fly/v2fly-core
 
-ENV UUID=${UUID}
-ENV VMESS_WSPATH=${VMESS_WSPATH}
-ENV VLESS_WSPATH=${VLESS_WSPATH}
+# Set working directory
+WORKDIR /v2ray
 
-COPY config.json /etc/v2ray/config.json
+# Copy configuration files
+COPY config.json .
+COPY init.sh .
+COPY manage_accounts.sh .
+COPY supervisord.conf .
+
+# Expose necessary ports
 EXPOSE 8080
 
-ENTRYPOINT ["v2ray", "-config=/etc/v2ray/config.json"]
+# Run supervisord to manage processes
+CMD ["supervisord", "-c", "supervisord.conf"]
